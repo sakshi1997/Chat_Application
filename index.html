@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Chat Application</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" >
+    <style>
+        h1, h2, h3, h4 {
+                    text-align:"center";
+                   font-family: 'Lobster', cursive;
+                }
+        .page-header {
+          background-color: #00081a;
+           color: #d7e0dff8;
+            font-size: 36pt;
+            margin-top: 0;
+            font-family: 'Lobster', cursive;
+            padding: 20px 20px 20px 40px;}
+        body {
+            background-color: #bcf3f5;
+            color: #0f0c0c;
+            font-size: 36pt;
+            margin-top: 0;
+            font-family: 'Lobster', cursive;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">Chat Application</div></br></br>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script>
+        var socket=io();
+        function setUsername(e){
+            socket.emit('setUsername',document.getElementById('name').value); 
+        };
+        var user;
+        socket.on('userAlreadyExists',function(data){
+            document.getElementById('error-message').innerHTML=data;
+        });
+        socket.on('newUserSet',function(data){
+            user=data.username;
+            document.body.innerHTML='<div class="page-header">Welcome '+user+' Start Chating  </div></br>\
+            <div class="container">\
+            <input type="text" id="message" placeholder="Enter Your message" class="form-control"/>\
+            <center><button type="button" class="btn btn-success" onclick="sendMessage()">Send Message</button>\
+            </center></div>\
+            <div id="user-message"></div>';
+        });
+        function sendMessage(){
+            var msg=document.getElementById('message').value;
+            if(msg){
+                socket.emit('msg',{message:msg,user:user});
+            }
+        }
+        socket.on('NewMessage',function(data){
+            if(user){
+            document.getElementById('user-message').innerHTML+='<div class="container">\
+                <i><h3><b>'+data.user+ '</b>:-' +data.message+ '</h3></i></div>';
+            }
+        });
+    </script>
+    <div id="error-message"></div>
+        <div class="container">
+        <h1>Username:<input id="name" type="text" name="name" placeholder="Enter your name!" class="form-control"/></h1>
+        <center><button type="button" class="btn btn-success" onClick="setUsername()">Start Chat</button></center>
+        </div>
+</body>
+</html>
